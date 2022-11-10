@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000
 require('dotenv').config()
@@ -14,11 +15,15 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+
 async function run() {
 
     try {
         const serviceCollection = client.db('cakeHouse').collection('services')
         const reviewCollection = client.db('cakeHouse').collection('reviews')
+
+
 
         // home page section 
         app.get('/home', async (req, res) => {
@@ -58,7 +63,7 @@ async function run() {
 
             const query = {}
             const cursor = reviewCollection.find(query)
-            const review = await cursor.sort({ "name": -1 }).toArray();
+            const review = await cursor.toArray();
             res.send(review)
         })
 
@@ -92,6 +97,20 @@ async function run() {
             res.send(result);
 
         })
+
+        app.patch('/myreviews/:id', async (req, res) => {
+            const id = req.params.id;
+            const status = req.body.status
+            const query = { _id: ObjectId(id) }
+            const updatedDoc = {
+                $set: {
+                    status: status
+                }
+            }
+            const result = await reviewCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        })
+
 
         app.delete('/myreviews/:id', async (req, res) => {
 
