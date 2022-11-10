@@ -21,13 +21,13 @@ async function run() {
         const reviewCollection = client.db('cakeHouse').collection('reviews')
 
         // home page section 
-
         app.get('/home', async (req, res) => {
             const query = {}
             const cursor = serviceCollection.find(query)
             const user = await cursor.limit(3).toArray();
             res.send(user)
         })
+
         app.get('/services', async (req, res) => {
             const query = {}
             const cursor = serviceCollection.find(query)
@@ -58,7 +58,7 @@ async function run() {
 
             const query = {}
             const cursor = reviewCollection.find(query)
-            const review = await cursor.toArray();
+            const review = await cursor.sort({ "name": -1 }).toArray();
             res.send(review)
         })
 
@@ -88,6 +88,16 @@ async function run() {
 
             const review = req.body;
             const result = await reviewCollection.insertOne(review)
+
+            res.send(result);
+
+        })
+
+        app.delete('/myreviews/:id', async (req, res) => {
+
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await reviewCollection.deleteOne(query)
 
             res.send(result);
 
