@@ -20,6 +20,7 @@ async function run() {
         const serviceCollection = client.db('cakeHouse').collection('services')
         const reviewCollection = client.db('cakeHouse').collection('reviews')
 
+        // home page section 
 
         app.get('/home', async (req, res) => {
             const query = {}
@@ -34,6 +35,13 @@ async function run() {
             res.send(user)
         })
 
+        app.post('/services', async (req, res) => {
+            const service = req.body;
+            const result = await serviceCollection.insertOne(service)
+            res.send(result);
+
+        })
+
         app.get('/services/:id', async (req, res) => {
 
             const id = req.params.id;
@@ -42,6 +50,9 @@ async function run() {
             res.send(service);
 
         })
+
+
+        // Review section 
 
         app.get('/reviews', async (req, res) => {
 
@@ -52,6 +63,28 @@ async function run() {
         })
 
         app.post('/reviews', async (req, res) => {
+
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review)
+
+            res.send(result);
+
+        })
+
+        // myReviews 
+
+        app.get('/myreviews', async (req, res) => {
+            let query = {}
+            if (req.query.email) {
+                query = {
+                    email: req.query.email
+                }
+            }
+            const cursor = reviewCollection.find(query)
+            const review = await cursor.toArray();
+            res.send(review)
+        })
+        app.post('/myreviews', async (req, res) => {
 
             const review = req.body;
             const result = await reviewCollection.insertOne(review)
